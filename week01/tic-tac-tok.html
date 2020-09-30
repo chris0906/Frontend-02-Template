@@ -1,0 +1,159 @@
+<style>
+  .cell {
+    width: 100px;
+    height: 100px;
+    background-color: green;
+    border: solid 1px white;
+    display: inline-block; /*水平显示（默认垂直显示）*/
+    vertical-align: middle; /*不知道有什么用*/
+    text-align: center; /*水平居中*/
+    line-height: 100px; /*垂直居中*/
+    font-size: 50px;
+  }
+</style>
+
+<div id="board"></div>
+
+<script>
+  let pattern = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ];
+  let form = 2; // 第一次点是圈
+  function show() {
+    let board = document.getElementById("board");
+    board.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        let cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.innerText =
+          pattern[i][j] == 2 ? "❌" : pattern[i][j] == 1 ? "⭕️" : "";
+        cell.addEventListener("click", () => play(i, j));
+        board.appendChild(cell);
+      }
+      board.appendChild(document.createElement("br"));
+    }
+  }
+  function play(i, j) {
+    pattern[i][j] = form;
+    show();
+    if (check(pattern, form)) {
+      alert(form == 2 ? "❌ is winner" : "⭕️ is winner");
+    }
+    form = 3 - form; // 下次点变为叉或圈
+    computerMove();
+    if (willWin(pattern, form)) {
+      console.log(form == 2 ? "❌ will win" : "⭕️ will win");
+    }
+  }
+
+  function computerMove() {
+    let choice = bestChoice(pattern, form);
+    if (choice.point) pattern[choice.point[0]][choice.point[1]] = form;
+    if (check(pattern, form)) {
+      alert(form == 2 ? "❌ is winner" : "⭕️ is winner");
+    }
+    form = 3 - form;
+    show();
+  }
+
+  function check(pattern, form) {
+    //检查横排
+    for (let i = 0; i < 3; i++) {
+      let winner = true;
+      for (let j = 0; j < 3; j++) {
+        if (pattern[i][j] !== form) {
+          winner = false;
+          break;
+        }
+      }
+      if (winner) return true;
+    }
+    //检查竖排
+    for (let i = 0; i < 3; i++) {
+      let winner = true;
+      for (let j = 0; j < 3; j++) {
+        if (pattern[j][i] !== form) {
+          winner = false;
+          break;
+        }
+      }
+      if (winner) return true;
+    }
+    //检查正斜线
+    {
+      let winner = true;
+      for (let j = 0; j < 3; j++) {
+        if (pattern[j][j] !== form) {
+          winner = false;
+          break;
+        }
+      }
+      if (winner) return true;
+    }
+    //检查反斜线
+    {
+      let winner = true;
+      for (let j = 0; j < 3; j++) {
+        if (pattern[j][2 - j] !== form) {
+          winner = false;
+          break;
+        }
+      }
+      if (winner) return true;
+    }
+    return false;
+  }
+  function clone(pattern) {
+    return JSON.parse(JSON.stringify(pattern));
+    // 一位数组可以用这个，他拥有同样的数据和方法
+    // return Object.create(pattern);
+  }
+  function willWin(pattern, form) {
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (pattern[i][j]) continue;
+        //把剩下的格子都用下一次要走的图案填满，然后判断只要有一种可能性赢就输出即将赢
+        let tempPattern = clone(pattern);
+        tempPattern[i][j] = form;
+        if (check(tempPattern, form)) {
+          return [i, j];
+        }
+      }
+    }
+    return null;
+  }
+
+  function bestChoice(pattern, form) {
+    let p;
+    if ((p = willWin(pattern, form))) {
+      return {
+        point: p,
+        result: 1,
+      };
+    }
+    let result = -2;
+    let point = null;
+    outer: for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (pattern[i][j]) continue;
+        let tem = clone(pattern);
+        tem[i][j] = form;
+        let r = bestChoice(tem, 3 - form).result;
+
+        if (-r > result) {
+          result = -r;
+          point = [i, j];
+        }
+        if (result === 1) break outer;
+      }
+    }
+    return {
+      point: point,
+      result: point ? result : 0,
+    };
+  }
+  show();
+</script>
