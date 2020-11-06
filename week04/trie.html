@@ -1,0 +1,62 @@
+<script>
+  const $ = Symbol("$");
+
+  class Trie {
+    constructor() {
+      this.root = Object.create(null);
+    }
+
+    insert(word) {
+      let node = this.root;
+
+      //注意这里是of不是in, 如果是字符串要用of，如果是对象要用in
+      for (let c of word) {
+        // 字典树离没有这个单词则加入
+        if (!node[c]) {
+          node[c] = Object.create(null);
+        }
+        // 到字典树下一个节点
+        node = node[c];
+      }
+      // 退出循环整个字符串遍历结束，如果是新的字符串则给他加一个$终止符，并且设置重复次数为1
+      if (!($ in node)) {
+        node[$] = 0;
+      }
+      //node[$]记录了这个词插入/查找的次数
+      node[$]++;
+    }
+
+    mostWords() {
+      //初始化重复最多的次数和单词
+      let maxCount = 0;
+      let maxCountWord = null;
+      function visit(node, word) {
+        //记录出现次数最多的单词
+        if (node[$] && node[$] > maxCount) {
+          maxCount = node[$];
+          maxCountWord = word;
+        }
+        for (let c in node) {
+          visit(node[c], word + c);
+        }
+      }
+
+      visit(this.root, "");
+      console.log(maxCountWord, maxCount);
+    }
+  }
+
+  function randomWord(wordLength) {
+    //注意这里要初始化“”空字符串，否则默认初始化为undefined
+    let word = "";
+    for (let i = 0; i < wordLength; i++) {
+      word += String.fromCharCode(Math.random() * 26 + "a".charCodeAt(0));
+    }
+    return word;
+  }
+
+  let t = new Trie();
+  for (let i = 0; i < 1000; i++) {
+    t.insert(randomWord(4));
+  }
+</script>

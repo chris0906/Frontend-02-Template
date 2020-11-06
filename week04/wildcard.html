@@ -1,0 +1,59 @@
+<script>
+  function find(source, pattern) {
+    let starCount = 0;
+    // 计算星号数量
+    for (let i = 0; i < pattern.length; i++) {
+      if (pattern[i] === "*") starCount++;
+    }
+    //如果星号数量等于0，直接一一匹配
+    if (starCount === 0) {
+      for (let i = 0; i < pattern.length; i++) {
+        if (pattern[i] !== source[i] && pattern[i] !== "?") return false;
+      }
+      return true;
+    }
+    let i = 0; //指向pattern下标
+    let lastIndex = 0; //指向source下标
+
+    //处理最前面的非星号
+    while (pattern[i] !== "*") {
+      if (pattern[i] !== source[i] && pattern[i] !== "?") return false;
+      i++;
+    }
+    lastIndex = i; //指向了第一个星号
+
+    //处理中间的星号和字符
+    for (let p = 0; p < starCount - 1; p++) {
+      i++;
+      let subPattern = ""; //星号后面的子串
+      while (pattern[i] !== "*") {
+        subPattern += pattern[i];
+        i++;
+      }
+      //把字串中所有的?替换成[\\s\\S]的正则表达式字符串，例如ab?c 则 ab[\\s\\S]c
+      //新建一个正则表达式并且设置成全局匹配模式
+      let reg = new RegExp(subPattern.replace("/\?/g", "[\\s\\S]"), "g");
+
+      //如果没有匹配上默认返回null
+      if (!reg.exec(source)) return false;
+      //更新source下标
+      lastIndex = reg.lastIndex;
+    }
+    //处理最后一个星号后面的字符，现在i指向最后一个星号，lastIndex指向最后一组待匹配的字符串
+    //从pattern最后一个字符开始与source最后一个字符比较直到*号
+    //其中source.length-lastIndex限定了source最后一组匹配的字符串长度
+    //其中pattern[pattern.length - j] !== "*"限定了*号后面的字符串
+    for (
+      let j = 1;
+      j <= source.length - lastIndex && pattern[pattern.length - j] !== "*";
+      j++
+    ) {
+      if (
+        pattern[pattern.length - j] !== source[source.length - j] &&
+        pattern[pattern.length - j] !== "?"
+      )
+        return false;
+    }
+    return true;
+  }
+</script>

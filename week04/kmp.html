@@ -1,0 +1,55 @@
+<script>
+  const prefix = [];
+  function prefixTable(word) {
+    prefix[0] = 0;
+    let i = 1;
+    let len = 0;
+    while (i < word.length) {
+      if (word[i] === word[len]) {
+        len++;
+        prefix[i] = len;
+        i++;
+      } else {
+        //当len=0时，已经是第一个字母了，而且第一个字母和最后一个字母不相等，所以直接赋值0
+        if (len > 0) len = prefix[len - 1];
+        prefix[i] = len;
+        i++;
+      }
+    }
+  }
+  function movePrefixTable() {
+    for (let i = prefix.length - 1; i > 0; i--) {
+      //把倒数第二个赋值给最后一个
+      prefix[i] = prefix[i - 1];
+    }
+    prefix[0] = -1;
+  }
+  function kmpSearch(text, pattern) {
+    prefixTable(pattern);
+    movePrefixTable();
+
+    let i = 0; //i指向text
+    let j = 0; //j指向pattern
+    const textLen = text.length;
+    const patternLen = pattern.length;
+
+    found = false;
+    while (i < textLen) {
+      //如果找到了，继续把字符串移动到前缀表的那个位置继续匹配，直到i到达边界
+      if (j === patternLen - 1 && text[i] === pattern[j]) {
+        found = true;
+        console.log("found matched string at", i - j);
+        j = prefix[j];
+      }
+      if (text[i] === pattern[j]) {
+        i++, j++;
+      } else {
+        j = prefix[j];
+        if (j === -1) {
+          i++, j++;
+        }
+      }
+    }
+    return found;
+  }
+</script>
