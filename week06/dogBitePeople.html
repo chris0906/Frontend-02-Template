@@ -1,0 +1,18 @@
+<script>
+  class Dog {
+    constructor(name) {
+      this.name = name;
+    }
+    bite(person) {
+      console.log(`the dog ${this.name} bite the person ${person.name}`);
+    }
+  }
+  class Person {
+    constructor(name) {
+      this.name = name;
+    }
+  }
+  const dog = new Dog("Wang Cai");
+  const person = new Person("Xiao Ming");
+  dog.bite(person);
+</script>

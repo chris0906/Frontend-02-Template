@@ -1,0 +1,83 @@
+<script>
+  function UTF8_Encoding(str) {
+    let buffer = [];
+    for (let char of str) {
+      //获取unicode码点
+      const codePoint = char.charCodeAt(0);
+      //1个字节
+      if (codePoint >= 0x0 && codePoint <= 0x7f) {
+        //10进制数转16进制字符串
+        buffer.push(codePoint.toString(16));
+      } else if (codePoint >= 0x80 && codePoint <= 0x7ff) {
+        //2个字节
+        //10进制码点转换成2进制字符串
+        let strBinary = codePoint.toString(2);
+        let firstByte = "110";
+        let secondByte = "10";
+        //从strBinary获取后六位并加入到第二个字节中
+        secondByte += strBinary.substring(strBinary.length - 6);
+        //去掉后六位
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+        if (strBinary.length < 5) {
+          //在前面补足0
+          for (let i = 0; i < 5 - strBinary.length; i++) {
+            strBinary = "0" + strBinary;
+          }
+        }
+        firstByte += strBinary;
+        const finalBytes = firstByte + secondByte;
+        //parse把2进制字符串转换成10进制数，再把10进制数转成16进制字符串，再加到buffer
+        buffer.push(parseInt(finalBytes, 2).toString(16));
+      } else if (codePoint > 0x7ff && codePoint <= 0xffff) {
+        //3个字节
+        let strBinary = codePoint.toString(2);
+        let firstByte = "1110";
+        let secondByte = "10";
+        let thirdByte = "10";
+
+        thirdByte += strBinary.substring(strBinary.length - 6);
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+
+        secondByte += strBinary.substring(strBinary.length - 6);
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+
+        if (strBinary.length < 4) {
+          //在前面补足0
+          for (let i = 0; i < 4 - strBinary.length; i++) {
+            strBinary = "0" + strBinary;
+          }
+        }
+        firstByte += strBinary;
+        const finalBytes = firstByte + secondByte + thirdByte;
+        buffer.push(parseInt(finalBytes, 2).toString(16));
+      } else {
+        //4个字节
+        let strBinary = codePoint.toString(2);
+        let firstByte = "11110";
+        let secondByte = "10";
+        let thirdByte = "10";
+        let fourthByte = "10";
+
+        fourthByte += strBinary.substring(strBinary.length - 6);
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+
+        thirdByte += strBinary.substring(strBinary.length - 6);
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+
+        secondByte += strBinary.substring(strBinary.length - 6);
+        strBinary = strBinary.substring(0, strBinary.length - 6);
+
+        if (strBinary.length < 3) {
+          //在前面补足0
+          for (let i = 0; i < 3 - strBinary.length; i++) {
+            strBinary = "0" + strBinary;
+          }
+        }
+        firstByte += strBinary;
+        const finalBytes = firstByte + secondByte + thirdByte + fourthByte;
+        buffer.push(parseInt(finalBytes, 2).toString(16));
+      }
+    }
+    return buffer;
+  }
+</script>
